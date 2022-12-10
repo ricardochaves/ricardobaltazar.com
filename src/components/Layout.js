@@ -30,7 +30,7 @@ class Layout extends Component {
             >
               <html lang="en" />
             </Helmet>
-            <div className={'page-top'}>{children}</div>
+            <div className={'page-top'} id="page-top">{children}</div>
           </>
         )}
       />
