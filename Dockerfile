@@ -1,6 +1,6 @@
 FROM node:19-alpine3.16
 
-RUN npm install -g gatsby-cli@4.2.0
+RUN npm install -g gatsby-cli@5.2.0
 
 RUN apk update
 RUN apk add --update --repository https://dl-3.alpinelinux.org/alpine/edge/testing vips-tools vips-dev fftw-dev gcc g++ make libc6-compat

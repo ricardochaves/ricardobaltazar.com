@@ -1,27 +1,31 @@
 {
-  "name": "gatsby-starter-grayscale",
-  "version": "0.0.2",
-  "description": "Gatsby.js V4 starter template based on Grayscale by startbootstrap",
+  "name": "ricardo-baltazar-blog",
+  "version": "1.0.0",
+  "description": "My personal blog",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/anubhavsrivastava/gatsby-starter-grayscale.git"
+    "url": "git+https://github.com/ricardochaves/ricardobaltazar.com.git"
   },
   "author": {
-    "name": "Anubhav Srivastava",
-    "email": "anubhav.srivastava00@gmail.com"
+    "name": "Ricardo Baltazar Chaves"
   },
   "dependencies": {
-    "gatsby": "^4.2.0",
-    "gatsby-plugin-manifest": "^4.2.0",
-    "gatsby-plugin-offline": "^5.2.0",
-    "gatsby-plugin-react-helmet": "^5.2.0",
-    "gatsby-plugin-sass": "^5.2.0",
-    "node-sass": "^8.0",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "react-helmet": "^5.2.1",
-    "react-images": "^1.1.0",
-    "react-scrollspy": "^3.4.0",
+    "gatsby": "^5.2.0",
+    "gatsby-plugin-image": "^3.2.0",
+    "gatsby-plugin-manifest": "^5.2.0",
+    "gatsby-plugin-mdx": "^5.2.0",
+    "gatsby-plugin-offline": "^6.2.0",
+    "gatsby-plugin-react-helmet": "^6.2.0",
+    "gatsby-plugin-sass": "^6.2.0",
+    "gatsby-plugin-sharp": "^5.2.0",
+    "gatsby-remark-prismjs": "^7.2.0",
+    "gatsby-source-filesystem": "^5.2.0",
+    "gatsby-transformer-remark": "^6.2.0",
+    "gatsby-transformer-sharp": "^5.2.0",
+    "prism-react-renderer": "^1.3.5",
+    "prismjs": "^1.29.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "smoothscroll-polyfill": "^0.4.4"
   },
   "scripts": {
@@ -38,14 +42,9 @@
     "prettier": "^2.4.1",
     "rimraf": "^3.0.2"
   },
-  "keywords": [
-    "gatsby",
-    "gatsby-starter",
-    "gatsby-starter-grayscale"
-  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/anubhavsrivastava/gatsby-starter-grayscale/issues"
+    "url": "https://github.com/ricardochaves/ricardobaltazar.com/issues"
   },
-  "homepage": "https://github.com/anubhavsrivastava/gatsby-starter-grayscale#readme"
+  "homepage": "https://github.com/ricardochaves/ricardobaltazar.com#readme"
 }

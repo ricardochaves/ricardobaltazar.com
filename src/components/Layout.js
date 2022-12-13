@@ -29,8 +29,10 @@ class Layout extends Component {
               ]}
             >
               <html lang="en" />
+
             </Helmet>
-            <div className={'page-top'} id="page-top">{children}</div>
+
+            <div className={'page-top'}>{children}</div>
           </>
         )}
       />
@@ -41,5 +43,6 @@ class Layout extends Component {
 Layout.propTypes = {
   children: PropTypes.node.isRequired,
 };
+
 
 export default Layout;

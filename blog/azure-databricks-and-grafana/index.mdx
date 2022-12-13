@@ -1,0 +1,149 @@
+---
+title: "Azure Databricks and Grafana"
+date: "2022-12-20"
+slug: "azure-databricks-and-grafana"
+resume: "How to monitor Azure Databricks with Grafana."
+subject: "Azure Cloud"
+bg_image_class: "cloud-bg-img"
+hero_image_credit_text: "Sigmund"
+hero_image_credit_link: "https://unsplash.com/es/@sigmund?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText"
+---
+
+Let's set up Databricks monitoring with Grafana
+
+I assume you have a Databricks cluster running.
+
+First, we'll create a new resource group called "grafana-databricks" to put in everything we make. It'll help you clear everything and manage the costs.
+
+Now you need: Docker and two CLIs working locally:
+- [Azure CLI](https://learn.microsoft.com/pt-br/cli/azure/)
+- [Databricks CLI](https://docs.databricks.com/dev-tools/cli/index.html)
+
+For monitoring, we use this library: [spark-monitoring](https://github.com/mspnp/spark-monitoring/blob/main/README.md_)
+
+Send logs to the [Log Analytics workspace](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/quick-create-workspace?tabs=azure-portal)
+
+Please create a new Log Analytics workspace, and remember to use the resource group we set up earlier.
+
+```bash
+az monitor log-analytics workspace create --resource-group <myGroup> \
+       --workspace-name <myWorkspace>
+```
+
+Once created, go to the Agent Management menu and note the ID workspace and the primary key we'll use.
+
+Clone the project https://github.com/mspnp/spark-monitoring and run one of the following commands, depending on your operating system. https://github.com/mspnp/spark-monitoring#option-1-docker
+
+During execution, change to the src/spark-listeners/scripts/spark-monitoring.sh directory and configure the log workspace:
+
+```bash
+export LOG_ANALYTICS_WORKSPACE_ID=
+export LOG_ANALYTICS_WORKSPACE_KEY=
+```
+
+Also, change the following values, which you can easily find in your cloud.
+
+```bash
+export AZ_SUBSCRIPTION_ID=11111111-5c17-4032-ae54-fc33d56047c2
+export AZ_RSRC_GRP_NAME=myAzResourceGroup
+export AZ_RSRC_PROV_NAMESPACE=Microsoft.Databricks
+export AZ_RSRC_TYPE=workspaces
+export AZ_RSRC_NAME=myDatabricks
+```
+
+The script will create two new JAR files in the src/target directory if you wait for Docker to run. We upload these files to the Databricks cluster:
+
+First, we upload the sh we set up earlier with Databricks CLI:
+
+```bash
+dbfs cp src/spark-listeners/scripts/spark-monitoring.sh dbfs:/databricks/spark-monitoring/spark-monitoring.sh
+```
+
+Now we upload the JAR files:
+
+```bash
+dbfs cp --overwrite --recursive src/target/ dbfs:/databricks/spark-monitoring/
+```
+
+Enable the library in Cluster
+
+Inside your Databricks, go to the menu Computer, and select the Cluster you want monitoring.
+
+Edit the Cluster
+
+Go to advanced options
+
+Go to Init Scripts
+
+Select DBFS and write the value: `dbfs:/databricks/spark-monitoring/spark-monitoring.sh`
+
+Save and restart the Cluster
+
+Check it is working
+
+Go to your Log Analytics workspace query and use one query like that.
+
+```sql
+let results=SparkListenerEvent_CL
+| where TimeGenerated > ago(7d)
+| where  Event_s == "SparkListenerJobStart"
+| extend metricsns=column_ifexists("Properties_spark_metrics_namespace_s",Properties_spark_app_id_s)
+| extend apptag=iif(isnotempty(metricsns),metricsns,Properties_spark_app_id_s)
+| project Job_ID_d,apptag,Properties_spark_databricks_clusterUsageTags_clusterName_s,TimeGenerated
+| order by TimeGenerated asc nulls last
+| join kind= inner (
+    SparkListenerEvent_CL
+    | where Event_s == "SparkListenerJobEnd"
+    | where Job_Result_Result_s == "JobSucceeded"
+    | project Event_s,Job_ID_d,TimeGenerated
+) on Job_ID_d;
+results
+| extend slice=strcat("#JobsCompleted ",Properties_spark_databricks_clusterUsageTags_clusterName_s,"-",apptag)
+| summarize count() by bin(TimeGenerated, 1h),slice
+| order by TimeGenerated asc nulls last
+```
+
+You will see some lines in the result.
+
+Let's create a Grafana.
+
+First, accept the Grafana terms:
+
+```bash
+az vm image terms accept --publisher bitnami --offer grafana --plan default
+```
+
+Now create a VM with a template.
+
+```bash
+export DATA_SOURCE="https://raw.githubusercontent.com/mspnp/spark-monitoring/master/perftools/deployment/grafana/AzureDataSource.sh"
+az deployment group create \
+    --resource-group <resource-group-name> \
+    --template-file grafanaDeploy.json \
+    --parameters adminPass='<vm password>' dataSource=$DATA_SOURCE
+```
+
+Now, you need to take note of the admin password printed in the deploy log. Go to VM created before, look to the Boot diagnostics menu, select Serial Log, and find "Setting the Bitnami App Password" there is an admin password. Take note to use it later.
+
+Create a Grafana Dash
+
+Create a Grafana Dash
+
+Get a VM IP and open `http://<IP address>:3000`. Login with the admin password noted before.
+
+Go back to the repository you cloned locally, open the "perftools/dashboards/grafana" directory, put your Azure Log Analytics workspace ID in the variable WORKSPACE and execute the DashGen.sh :
+
+```bash
+export WORKSPACE=<your Azure Log Analytics workspace ID>
+export LOGTYPE=SparkListenerEvent_CL
+
+sh DashGen.sh
+```
+
+It'll create the SparkMonitoringDash.json file.
+
+Come back to Grafana, click the plus icon to create a new dash, and import the json file.
+
+We done. You can see your monitoring data in the Dash
+
+To improve your security, you can configure the firewall of the VM to accept connections just from your VPN IP.
