@@ -8,7 +8,7 @@ import Footer from '../components/Footer';
 import SocialLinks from '../components/SocialLinks';
 import Header from '../components/Header';
 
-import ipad from '../assets/images/ipad.png';
+import {StaticImage} from "gatsby-plugin-image";
 
 const IndexPage = () => (
   <Layout>
@@ -40,7 +40,7 @@ const IndexPage = () => (
             </p>
           </div>
         </div>
-        <img src={ipad} className="img-fluid" alt="" />
+           <StaticImage src='../assets/images/ipad.png' className="img-fluid" alt="" />
       </div>
     </section>
 
