@@ -42,7 +42,7 @@ export default class Header extends Component {
         <div className="container">
           <Scroll
               onClick={_ => this.toggleMenu(!openMenu)}
-              type="id"
+              type="class"
               element="page-top"
           >
           <a className="navbar-brand" href="#page-top">
