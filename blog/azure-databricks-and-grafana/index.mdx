@@ -6,7 +6,7 @@ resume: "How to monitor Azure Databricks with Grafana."
 subject: "Azure Cloud"
 bg_image_class: "cloud-bg-img"
 hero_image_credit_text: "Sigmund"
-hero_image_credit_link: "https://unsplash.com/es/@sigmund?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText"
+hero_image_credit_link: "https://unsplash.com/es/@sigmund"
 ---
 
 Let's set up Databricks monitoring with Grafana
@@ -75,7 +75,7 @@ Go to advanced options
 
 Go to Init Scripts
 
-Select DBFS and write the value: `dbfs:/databricks/spark-monitoring/spark-monitoring.sh`
+Select DBFS and write the value: dbfs:/databricks/spark-monitoring/spark-monitoring.sh
 
 Save and restart the Cluster
 
@@ -129,7 +129,7 @@ Create a Grafana Dash
 
 Create a Grafana Dash
 
-Get a VM IP and open `http://<IP address>:3000`. Login with the admin password noted before.
+Get a VM IP and open **http://\<IP address\>:3000**. Login with the admin password noted before.
 
 Go back to the repository you cloned locally, open the "perftools/dashboards/grafana" directory, put your Azure Log Analytics workspace ID in the variable WORKSPACE and execute the DashGen.sh :
 
