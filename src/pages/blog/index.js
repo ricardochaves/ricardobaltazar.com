@@ -25,10 +25,10 @@ const BlogPage = ({ data }) => {
     return (
 <Layout>
     <BlogHeader />
-
     <section className="blog-list-section text-center" id="list-of-posts">
     {
         data.allMdx.nodes.map((node) => (
+            <>
             <article key={node.id}>
                 <h2 className="text-white mb-4">
                     <Link to={`/blog/${node.frontmatter.slug}`}>
@@ -37,10 +37,13 @@ const BlogPage = ({ data }) => {
                 </h2>
                 <p className="text-white-50">{node.frontmatter.resume}</p>
                 <p className="text-white-50">Posted: {node.frontmatter.date}</p>
-
             </article>
+            <hr/>
+            </>
         ))
+
     }
+
     </section>
     <SocialLinks />
     <Footer />

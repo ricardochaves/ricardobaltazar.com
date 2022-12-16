@@ -37,6 +37,7 @@ const BlogPost = ({ data, children }) => {
                 <article className="article">
                     <h1 className="text-center">{data.mdx.frontmatter.title}</h1>
                     {children}
+                    <hr/>
                     <p className="small">{data.mdx.frontmatter.date}</p>
                     <p className="small">Background image credits for
                         <Link to={data.mdx.frontmatter.hero_image_credit_link}>
