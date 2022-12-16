@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Scroll from './Scroll';
 import config from '../../config';
+import {Link} from "gatsby";
 export default class Header extends Component {
   constructor(props) {
     super(props);
@@ -45,9 +46,9 @@ export default class Header extends Component {
               type="class"
               element="page-top"
           >
-          <a className="navbar-brand" href="#page-top">
+          <Link className="navbar-brand" to="#page-top">
             {config.siteTitle}
-          </a>
+          </Link>
           </Scroll>
           <button
             onClick={_ => this.toggleMenu(!openMenu)}
@@ -68,9 +69,9 @@ export default class Header extends Component {
           >
             <ul className="navbar-nav ml-auto">
               <li className="nav-item">
-                <a className="nav-link" href="/blog">
+                <Link className="nav-link" to="/blog">
                   Blog
-                </a>
+                </Link>
               </li>
               <li className="nav-item">
                 <Scroll
@@ -78,9 +79,9 @@ export default class Header extends Component {
                   type="id"
                   element="about"
                 >
-                  <a className="nav-link" href="#about">
+                  <Link className="nav-link" to="#about">
                     About
-                  </a>
+                  </Link>
                 </Scroll>
               </li>
 
@@ -90,9 +91,9 @@ export default class Header extends Component {
                   type="id"
                   element="contact"
                 >
-                  <a className="nav-link" href="#contact">
+                  <Link className="nav-link" to="#contact">
                     Contact
-                  </a>
+                  </Link>
                 </Scroll>
               </li>
             </ul>
