@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Scroll from './Scroll';
 import config from '../../config';
+import {Link} from "gatsby";
 export default class BlogHeader extends Component {
     constructor(props) {
         super(props);
@@ -41,9 +42,9 @@ export default class BlogHeader extends Component {
             >
                 <div className="container">
 
-                        <a className="navbar-brand" href="/">
+                        <Link className="navbar-brand" to="/">
                             {config.siteTitle}
-                        </a>
+                        </Link>
                     <button
                         onClick={_ => this.toggleMenu(!openMenu)}
                         className={`navbar-toggler navbar-toggler-right ${
@@ -62,21 +63,21 @@ export default class BlogHeader extends Component {
                         id="navbarResponsive"
                     >
                         <ul className="navbar-nav ml-auto">
-                            <li className="nav-item">
-                                <a className="nav-link" href="/blog">
+                            <li className="nav-item" >
+                                <Link className="nav-link" to="/blog" >
                                     Blog
-                                </a>
+                                </Link>
                             </li>
 
-                            <li className="nav-item">
+                            <li className="nav-item" >
                                 <Scroll
                                     onClick={_ => this.toggleMenu(!openMenu)}
                                     type="id"
                                     element="contact"
                                 >
-                                    <a className="nav-link" href="#contact">
+                                    <Link className="nav-link" to="#contact">
                                         Contact
-                                    </a>
+                                    </Link>
                                 </Scroll>
                             </li>
                         </ul>

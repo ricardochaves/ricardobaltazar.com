@@ -9,6 +9,7 @@ import SocialLinks from '../components/SocialLinks';
 import Header from '../components/Header';
 
 import {StaticImage} from "gatsby-plugin-image";
+import {Link} from "gatsby";
 
 const IndexPage = () => (
   <Layout>
@@ -22,9 +23,9 @@ const IndexPage = () => (
             {config.subHeading}
           </h2>
           <Scroll type="id" element="about">
-            <a href="#about" className="btn btn-primary">
+            <Link to="#about" className="btn btn-primary">
               About
-            </a>
+            </Link>
           </Scroll>
         </div>
       </div>
@@ -43,7 +44,6 @@ const IndexPage = () => (
            <StaticImage src='../assets/images/ipad.png' className="img-fluid" alt="" />
       </div>
     </section>
-
 
     <SocialLinks />
     <Footer />
