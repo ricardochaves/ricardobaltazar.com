@@ -1,6 +1,6 @@
 import * as React from 'react'
 import Layout from '../../components/Layout';
-import {graphql, Link} from 'gatsby'
+import {graphql} from 'gatsby'
 import SocialLinks from "../../components/SocialLinks";
 import Footer from "../../components/Footer";
 import BlogHeader from "../../components/BlogHeader";
@@ -40,9 +40,9 @@ const BlogPost = ({ data, children }) => {
                     <hr/>
                     <p className="small">{data.mdx.frontmatter.date}</p>
                     <p className="small">Background image credits for
-                        <Link to={data.mdx.frontmatter.hero_image_credit_link}>
+                        <a href={data.mdx.frontmatter.hero_image_credit_link}>
                             {data.mdx.frontmatter.hero_image_credit_text}
-                        </Link>
+                        </a>
                     </p>
                 </article>
             </section>
