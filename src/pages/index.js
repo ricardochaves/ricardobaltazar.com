@@ -41,7 +41,7 @@ const IndexPage = () => (
             </p>
           </div>
         </div>
-           <StaticImage src='../assets/images/ipad.png' className="img-fluid" alt="" />
+           <StaticImage src='../assets/images/ipad.png' className="img-fluid" alt="a ipad" />
       </div>
     </section>
 

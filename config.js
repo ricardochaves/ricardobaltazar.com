@@ -1,7 +1,7 @@
 module.exports = {
   siteTitle: 'Ricardo Baltazar Chaves', // <title>
-  manifestName: 'Grayscale',
-  manifestShortName: 'Landing', // max 12 characters
+  manifestName: 'My website focuses on my professional life and small things in my personal life.',
+  manifestShortName: 'My website', // max 12 characters
   manifestStartUrl: '/',
   manifestBackgroundColor: '#663399',
   manifestThemeColor: '#663399',
