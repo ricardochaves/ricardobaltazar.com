@@ -62,5 +62,14 @@ module.exports = {
         enableWebVitalsTracking: true,
       },
     },
+    {
+      resolve: 'gatsby-plugin-robots-txt',
+      options: {
+        host: 'https://ricardobaltazar.com/',
+        sitemap: 'https://ricardobaltazar.com/sitemap.xml',
+        policy: [{userAgent: '*', allow: '/'}],
+        output: "/robots.txt"
+      }
+    }
   ],
 };
