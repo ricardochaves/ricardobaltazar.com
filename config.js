@@ -1,5 +1,6 @@
 module.exports = {
   siteTitle: 'Ricardo Baltazar Chaves', // <title>
+  siteUrl: "https://ricardobaltazar.com",
   manifestName: 'My website focuses on my professional life and small things in my personal life.',
   manifestShortName: 'My website', // max 12 characters
   manifestStartUrl: '/',
@@ -10,7 +11,6 @@ module.exports = {
   pathPrefix: `/gatsby-starter-grayscale/`, // This path is subpath of your hosting https://domain/portfolio
   heading: 'FREEDOM',
   subHeading: 'Every human being needs to be free to do anything provided that, at the same time, the private properties of others are preserved.',
-
   // social
   socialLinks: [
     {
