@@ -97,10 +97,6 @@ query MyQuery {
                          allSitePage: { nodes: allPages },
                          allMdx: { nodes: allMdxNodes },
                        }) => {
-          console.log("allMdxNodes---")
-          console.log(allMdxNodes)
-          console.log("allPages---")
-          console.log(allPages)
 
           let simpleNodes = allMdxNodes.reduce((acc, node) => {
             acc.push( {"path": node["frontmatter"]["path"], "modified_gmt": node["frontmatter"]["modified_gmt"]})
@@ -112,12 +108,7 @@ query MyQuery {
             return acc
           }, [])
 
-          console.log("simpleNodes---")
-          console.log(simpleNodes)
-
           let x = pages.concat(simpleNodes)
-          console.log("x---")
-          console.log(x)
 
           function contains(arr, key, val) {
             for (var i = 0; i < arr.length; i++) {
@@ -126,35 +117,22 @@ query MyQuery {
             return false;
           }
           let x2 = x.reduce((acc, node) => {
-            console.log("x2_reduce node:")
-            console.log(node)
             if (!contains(acc, "path", node["path"])){
               if (/\/blog\/.+\//.test(node["path"])){
-                console.log("regex pegou")
                 if (node["modified_gmt"]){
-                  console.log("node with modified_gmt")
                   acc.push({"path": node["path"], "modified_gmt":node["modified_gmt"]})
                 }
-                console.log("node without modified_gmt, ignorado")
               }else{
-                console.log("regex não pegou")
                 acc.push({"path": node["path"]})
               }
             }
             return acc
           }, [])
 
-          console.log("x2---")
-          console.log(x2)
-
           return x2
 
         },
         serialize: ({ path, modified_gmt }) => {
-          console.log("path-----")
-          console.log(path)
-          console.log("modified_gmt-----")
-          console.log(modified_gmt)
           return {
             url: path,
             lastmod: modified_gmt,
