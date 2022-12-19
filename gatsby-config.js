@@ -7,7 +7,6 @@ module.exports = {
     siteUrl: config.siteUrl,
   },
   plugins: [
-    'gatsby-plugin-react-helmet',
     {
       resolve: `gatsby-plugin-manifest`,
       options: {

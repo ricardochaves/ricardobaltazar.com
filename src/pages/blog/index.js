@@ -2,24 +2,29 @@ import React from 'react';
 import Layout from '../../components/Layout';
 import SocialLinks from "../../components/SocialLinks";
 import Footer from "../../components/Footer";
-import { Link, graphql } from 'gatsby'
+import {Link, graphql} from 'gatsby'
 import BlogHeader from "../../components/BlogHeader";
 
 
 export const query = graphql`
   query {
-    allMdx(sort: { frontmatter: { date: DESC }}) {
-      nodes {
-        frontmatter {
-          date(formatString: "MMMM D, YYYY")
-          title
-          slug
-          resume
-        }
-        id
+  allMdx(sort: {frontmatter: {date: DESC}}) {
+    nodes {
+      frontmatter {
+        date(formatString: "MMMM D, YYYY")
+        title
+        slug
+        resume
       }
+      id
     }
   }
+  site {
+    siteMetadata {
+      title
+    }
+  }
+}
 `
 const BlogPage = ({ data }) => {
     return (
@@ -49,3 +54,11 @@ const BlogPage = ({ data }) => {
 )}
 
 export default BlogPage;
+
+export function Head  ({ data })  {
+
+    return (<>
+            <title>Blog - {data.site.siteMetadata.title}</title>
+        </>
+    )
+}

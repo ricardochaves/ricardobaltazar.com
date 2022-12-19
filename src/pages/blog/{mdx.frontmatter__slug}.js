@@ -6,7 +6,6 @@ import Footer from "../../components/Footer";
 import BlogHeader from "../../components/BlogHeader";
 import Scroll from "../../components/Scroll";
 
-
 const BlogPost = ({ data, children }) => {
 
     return (
@@ -53,20 +52,32 @@ const BlogPost = ({ data, children }) => {
 }
 
 export const query = graphql`
-  query($id: String) {
-    mdx(id: {eq: $id}) {
-      frontmatter {
-        title
-        date(formatString: "MMMM DD, YYYY")
-        resume,
-        subject,
-        bg_image_class,
-        hero_image_credit_text,
-        hero_image_credit_link
-      }
+query ($id: String) {
+  mdx(id: {eq: $id}) {
+    frontmatter {
+      title
+      date(formatString: "MMMM DD, YYYY")
+      resume
+      subject
+      bg_image_class
+      hero_image_credit_text
+      hero_image_credit_link
     }
   }
+  site {
+    siteMetadata {
+      title
+    }
+  }
+}
 `
 
 
 export default BlogPost
+
+export function Head  ({ data })  {
+    return (<>
+            <title>{data.mdx.frontmatter.title} - {data.site.siteMetadata.title}</title>
+        </>
+    )
+}
