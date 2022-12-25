@@ -5,6 +5,7 @@ module.exports = {
   siteMetadata: {
     title: config.siteTitle,
     siteUrl: config.siteUrl,
+    metaDescription: config.manifestName
   },
   plugins: [
     {

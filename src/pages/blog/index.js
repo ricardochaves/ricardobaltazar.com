@@ -22,6 +22,7 @@ export const query = graphql`
   site {
     siteMetadata {
       title
+      metaDescription
     }
   }
 }
@@ -59,6 +60,8 @@ export function Head  ({ data })  {
 
     return (<>
             <title>Blog - {data.site.siteMetadata.title}</title>
+            <meta name="X-Robots-Tag" content="index, follow"/>
+            <meta name="description" content={data.site.siteMetadata.metaDescription}/>
         </>
     )
 }

@@ -78,6 +78,8 @@ export default BlogPost
 export function Head  ({ data })  {
     return (<>
             <title>{data.mdx.frontmatter.title} - {data.site.siteMetadata.title}</title>
+            <meta name="X-Robots-Tag" content="index, follow"></meta>
+            <meta name="description" content={data.mdx.frontmatter.resume}/>
         </>
     )
 }

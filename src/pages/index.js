@@ -58,12 +58,15 @@ export function Head  ()  {
             site {
               siteMetadata {
                 title
+                metaDescription
               }
             }
           }
   `)
     return (<>
             <title>{data.site.siteMetadata.title}</title>
+            <meta name="X-Robots-Tag" content="index, follow"/>
+            <meta name="description" content={data.site.siteMetadata.metaDescription}/>
         </>
     )
 }
