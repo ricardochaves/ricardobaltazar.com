@@ -24,7 +24,18 @@ module.exports = {
     'gatsby-plugin-offline',
     "gatsby-transformer-sharp",
     "gatsby-plugin-image",
-    "gatsby-plugin-sharp",
+    {
+      resolve: `gatsby-plugin-sharp`,
+      options: {
+        defaults: {
+          formats: [`webp`],
+          placeholder: `dominantColor`,
+          quality: 50,
+          breakpoints: [750, 1080, 1366, 1920],
+          backgroundColor: `transparent`,
+        }
+      }
+    },
     {
       resolve: "gatsby-source-filesystem",
       options: {
@@ -40,7 +51,14 @@ module.exports = {
             resolve: `gatsby-remark-prismjs`,
             options: {},
           },
+          {
+            resolve: `gatsby-remark-images`,
+            options: {
+              maxWidth: 1200,
+            },
+          },
         ],
+
       },
     },
     {
