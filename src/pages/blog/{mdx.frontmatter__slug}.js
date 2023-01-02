@@ -62,6 +62,12 @@ query ($id: String) {
       bg_image_class
       hero_image_credit_text
       hero_image_credit_link
+      embeddedImagesLocal {
+        id
+        childImageSharp {
+          gatsbyImageData(layout: CONSTRAINED)
+        }
+      }
     }
   }
   site {

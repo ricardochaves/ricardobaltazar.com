@@ -1,7 +1,7 @@
 ---
 title: "Remote interpreter. A new word for develops"
 date: "2023-01-01"
-modified_gmt: "2023-01-01"
+modified_gmt: "2023-01-02"
 slug: "remote-interpreter-a-new-word-for-develops"
 path: "/blog/remote-interpreter-a-new-word-for-develops/"
 resume: "Boost your productivity with modern tools."
@@ -9,7 +9,19 @@ subject: "Front End"
 bg_image_class: "front-end-img"
 hero_image_credit_text: "Shahadat Rahman"
 hero_image_credit_link: "https://unsplash.com/@hishahadat"
+embeddedImagesLocal:
+  - configure-debug.webp
+  - congratulations-you-just-made-a-gatsby-site.webp
+  - create-remote-interpreter.webp
+  - file-explorer.webp
+  - new-npm-run-configuration.webp
+  - node-not-found.webp
+  - npm-run-bash.webp
+  - run-toolbar.webp
+  - start-develop.webp
+  - web-storm-new-project-node-js-download-node.webp
 ---
+import MDXImageBody from "../../src/components/MDXImageBody";
 
 A developer, first of all, is a professional. A professional is someone who can sell a skill to someone else.
 
@@ -22,9 +34,9 @@ This article will teach us how to configure um remote interpreter no WebStorm. O
 # Remote Interpreter
 An IDE does not exist alone in your system. Visual Studio or Rider needs an installation of C# in your machine, PyCharm needs Python, WebStorm requires npm, and so on. They usually will install all dependencies in the same installation. Look at this image where WebStorm says it will download npm when I call for a new project.
 
-[//]: # (<h1>{props.pageContext.frontmatter.title}</h1>)
-![A new project windows of WebStorm](./web-storm-new-project-node-js-download-node.webp)
+<MDXImageBody img={props.data} index={9} alt={"A new project windows of WebStorm"}/>
 <br/>
+
 The point is when you will work for a company, and you need to work on many different projects simultaneously. You will need to have a lot of different versions of Python, npm, C#, and things like pyenv and nvm start to show up to help.
 
 And well... That's work. The problem is that at a certain point, you will need so many versions that may not even be supported by your OS anymore. Or even fill your machine with so much stuff that it makes it unusable. How have you never installed a package without <code>--dev</code> or done a <code>pip install</code> in the wrong place? Putting things where they shouldn't be, I doubt you will go there and remove them.
@@ -93,34 +105,43 @@ services:
 ```
 
 Now you execute <code>docker compose run --rm app npm init gatsby</code>. They will build a new docker image and request the information to create a new project after that. In the end, you will see something like that:
-![File explorer of WebStorm](./file-explorer.webp)
+
+<MDXImageBody img={props.data} index={3} alt={"File explorer of WebStorm"}/>
+<br/>
 
 With docker, you can create a new project without installing anything on your machine.
 
 Open the directory with WebStorm. Go to settings and search for Node.js configuration. You will see an error in the Node Interpreter configuration.
-![A window of interpreter with a error, node not found](./node-not-found.webp)
+<MDXImageBody img={props.data} index={5} alt={"A window of interpreter with a error, node not found"}/>
+<br/>
 
 It is because you don't have a node installed on your machine. Let's create a remote interpreter now.
 
 Open an interpreter's combo box, click add a new interpreter, and select remote. In the new windows, select Docker Compose, and in the compo box Service, select "app." The <code>app</code> is the name of the service that we used in <code>docker-compose.yml</code> before.
-![Create a remove interpreter](./create-remote-interpreter.webp)
+<MDXImageBody img={props.data} index={2} alt={"Create a remove interpreter"}/>
+<br/>
 
 Select Ok and Ok again.
 
 Now let's put the project to run. Click in Current File:
-![Run toolbar of WebStorm](./run-toolbar.webp)
+<MDXImageBody img={props.data} index={7} alt={"Run toolbar of WebStorm"}/>
+<br/>
 
 Edit Configuration, add new and select npm:
-![New debug configuration](./new-npm-run-configuration.webp)
+<MDXImageBody img={props.data} index={4} alt={"New debug configuration"}/>
+<br/>
 
 Configure what is needed to run a Gatsby project as if it were locally:
-![New debug configuration](./configure-debug.webp)
+<MDXImageBody img={props.data} index={0} alt={"Configure debug"}/>
+<br/>
 
 Select Ok and push Play:
-![develop is running](./start-develop.webp)
+<MDXImageBody img={props.data} index={8} alt={"develop is running"}/>
+<br/>
 
 Now you have your project running:
-![develop is running](./npm-run-bash.webp)
+<MDXImageBody img={props.data} index={6} alt={"develop is running"}/>
+<br/>
 
 Try open <code>http://localhost:8000/ </code>, and you will get an error: <code>localhost didn't send any data</code>. Now we have a remote interpreter's first particularity when running a project with npm. You need an explicit configuration for they need to respond in a host <code>0.0.0.0</code>. Just configure your <code>package.json</code> like that:
 ```json
@@ -134,7 +155,9 @@ Try open <code>http://localhost:8000/ </code>, and you will get an error: <code>
 ```
 
 Just play again and try the same address:
-![Congratulations you just made a Gatsby site](./congratulations-you-just-made-a-gatsby-site.webp)
+<MDXImageBody img={props.data} index={1} alt={"Congratulations you just made a Gatsby site"}/>
+
+<br/>
 
 Done. You have your project running on your machine. You can debug and run your tests; everything will be inside your container.
 
