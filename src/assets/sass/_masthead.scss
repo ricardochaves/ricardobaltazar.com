@@ -87,3 +87,14 @@
   url('../images/shahadat-rahman-O2MdroNurVw-unsplash.webp');
   background-size: cover;
 }
+
+privacy-img {
+  background: linear-gradient(
+                  to bottom,
+                  #{fade-out($black, 0.7)} 0%,
+                  #{fade-out($black, 0.3)} 75%,
+                  $black 100%
+  ),
+  url('../images/immo-wegmann-2TL6RxRTwnk-unsplash.jpeg');
+  background-size: cover;
+}
