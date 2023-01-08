@@ -1,0 +1,46 @@
+---
+title: "How to host your gatsby website on the Onion network to be accessible via Tor."
+date: "2023-01-06"
+modified_gmt: "2023-01-06"
+slug: "how-to-host-your-gatsby-website-on-the-onion-network-to-be-accessible-via-tor"
+path: "/blog/how-to-host-your-gatsby-website-on-the-onion-network-to-be-accessible-via-tor/"
+resume: "Publishing a website with privacy."
+subject: "Privacy"
+bg_image_class: "privacy-img"
+hero_image_credit_text: "Immo Wegmann"
+hero_image_credit_link: "https://unsplash.com/@macroman"
+embeddedImagesLocal:
+  - a-blog-home-in-onion-network.png
+  - a-small-site-in-onion-network.png
+  - onionshare-home-page.png
+  - onionshare-webseti-screen.png
+---
+import MDXImageBody from "../../src/components/MDXImageBody";
+
+The first thing you need to do is learn how to host any website in an Onion network. Let's start building a simple website.
+Create an <code>index.html</code> inside a new directory.
+```html
+<h1>Hi</h1>
+```
+We will use [OnionShare](https://onionshare.org/) to host a website on the Onion network. I'm using a MAC M1 to create this project. To install the OnionShare, you must execute <code>brew install --cash onionshare</code>.
+Open the program and go to Host a Website.
+<MDXImageBody img={props.data} index={2} alt={"onionshare home page"}/>
+<br/>
+
+Add the directory you created the <code>index.html</code> file inside, check the option <code>This is a public OnionShare service (disabeles private key)</code>, and click on <code>Start sharing</code>. You will receive an address like this: http://6nvrcuddztfiokksb7phvnv6k4xfu64xpcm55joj5znije22rdsob7id.onion
+<MDXImageBody img={props.data} index={3} alt={"onionshare website host page"}/>
+<br/>
+
+Open the address in a browser with Onion network access, and you will see your website.
+<MDXImageBody img={props.data} index={1} alt={"a small website in onion network"}/>
+<br/>
+
+Now in your Gatsby project, if you are like me and don't change anything default in your project, you need to execute <code>npm run build</code>. In the end, you will have a directory with the name public.
+
+Add your public directory in OnionShare and now check the option <code>Don't send default Content Security Policy header (allows your website to use third-party resources)</code> and Start again.
+
+Open your link, and done! Everything is working! Well, most everything, you don't have HTTPS, and things like ServiceWorker won't work. But I want to have a little experience with an Onion network; it's a great result!
+<MDXImageBody img={props.data} index={0} alt={"a blog home in onion network"}/>
+<br/>
+
+I'm waiting for my Orange Pi 5 to arrive, and then I pretend to put my Bitcoin node on it and host my website in an Onion network. When I do that, I'll update this post with an Onion link to my website.
