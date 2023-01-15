@@ -1,0 +1,126 @@
+---
+title: "Bitcoin Node in a Orange Pi 5 with Umbrel"
+date: "2022-12-21"
+modified_gmt: "2022-12-21"
+slug: "bitcoin-node-in-a-orange-pi-5-with-umbrel"
+path: "/blog/bitcoin-node-in-a-orange-pi-5-with-umbrel/"
+resume: "My first experience with Orange Pi 5"
+subject: "Privacy"
+bg_image_class: "privacy-img"
+hero_image_credit_text: "Immo Wegmann"
+hero_image_credit_link: "https://unsplash.com/@macroman"
+---
+
+This post is my first experience with Orange Pi 5, and I had to do some different things to put it all together working.
+
+The equipment:
+ - MicroSD card A2 64g
+ - Orange Pi 5 16g RAM
+
+The idea of this post is to start from the moment you have an operating system working in your Orange Pi 5. There are a lot of guides teaching this on the internet, so it's not worth wasting time on it. I used this video to learn, and it is phenomenal.
+
+`youtube: https://www.youtube.com/watch?v=cBqV4QWj0lE`
+
+I selected the <code>Orangepi5_1.1.0_ubuntu_jammy_desktop_xfce_linux5.10.110.7z</code> image, so if you chose another one, some things here might not apply to you.
+
+To see the options of images, use the Orange Pi website, this [link](http://www.orangepi.org/html/serviceAndSupport/index.html).
+
+I got the desktop version because [Umbrel](https://umbrel.com/) needs a graph interface. Another request of Umbrel is a SO with 64 bits.
+
+The Orange Pi 5 CPU supports 64 bits, but I don't know why they don't add this to the image I spoke about before, so we need to run the following command:
+```bash
+sudo dpkg --add-architecture amd64 ## adding 64-bits architecture package
+```
+
+Now we can install Umbrel. Here I had another problem, I only have a 64 GB MicroSD Card. I could run out of space quickly (I want to add more things to the PC), so I decided to put a 2T external hard drive on the USB 3 port of the Orange Pi. To do this right, that's what I could do with my poor knowledge of Linux. I learned a lot from this video:
+
+`youtube: https://www.youtube.com/watch?v=2Z6ouBYfZr8`
+
+I had to mount the external hard drive in the <code>mnt</code> folder because I wanted it as part of my system.
+
+To do this, insert the external hard drive into the USB, then use the <code>lsblk</code> command:
+
+```bash
+> lsblk
+
+NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+sda           8:0    0  1.8T  0 disk
+└─sda1        8:1    0  1.8T  0 part
+mtdblock0    31:0    0   16M  0 disk
+mmcblk1     179:0    0 59.5G  0 disk
+├─mmcblk1p1 179:1    0  256M  0 part /boot
+└─mmcblk1p2 179:2    0 58.6G  0 part /var/log.hdd
+                                     /
+zram0       254:0    0  7.7G  0 disk [SWAP]
+zram1       254:1    0  200M  0 disk /var/log
+```
+
+You should see something with the name <code>sda</code> or similar...
+That's the name Linux gives when you have something on USB.
+
+With this name in hand, let's do the following:
+```bash
+cd /mnt
+mkdir disk1
+sudo mount /dev/sda1 /mnt/disk1/
+```
+
+The <code>/dev/</code> is standard, and you should add it in front of <code>sda1</code> or a similar name you have there.
+
+The following parameter is <code>/mnt/disk1/</code>, where it will mount. Once done, the next step is to install and configure docker. I didn't have any problems with the installation, so you shouldn't either. Just follow any of [these options](https://docs.docker.com/engine/install/ubuntu/).
+
+Once established, I wanted to change where docker will save the data. Docker keeps everything in a single directory. The default value is <code>/var/lib/docker</code>. In my case, I want it to save on my external hard drive. To do this, we will create a folder on it and configure docker:
+
+I am considering two things in the script. One is that the <code>daemon.json</code> file does not exist. It is not created during the installation of docker. The second point is that I use nano to edit the file. Do as you think is best.
+
+```bash
+cd /mnt/disk1
+mkdir docker-data
+cd /etc/docker
+touch daemon.json
+nano daemon.json
+```
+
+The file should stay like this:
+
+```json
+{
+  "data-root" : "/mnt/disk1/docker-data"
+}
+```
+
+Now, restart the docker
+
+```bash
+service docker restart
+```
+
+If you do an <code>ls /mnt/disk1/docker-data</code> you will see several items created. Let's install Umbrel now. I also want to install it on my external hard drive. By default, it will store the applications' data in the <code>app-data</code> folder created where it was installed. To install, I used the command below with three parameters, one to change the directory and two to not install the docker because we already installed it.
+
+```bash
+cd /mnt/disk1
+mkdir umbrel
+curl -L https://umbrel.sh | bash -s -- --install-path /mnt/disk1/umbrel/ --no-install-docker --no-install-compose
+```
+
+The final log of command will be something like that:
+```bash
+Creating manager   ... done
+Creating auth      ... done
+Creating tor_proxy ... done
+Creating dashboard ... done
+Creating nginx     ... done
+
+Removing status server iptables entry...
+Exiting iptables setup when not on Umbrel OS
+
+Starting installed apps...
+
+Umbrel is now accessible at
+  http://orangepi5.local
+  http://10.0.0.147
+Skipping status update when not on Umbrel OS
+
+Umbrel has been sucessfully installed!
+```
+When you open this URL in the browser, Umbrel will already be ready. Just install the apps you want and enjoy.

@@ -48,17 +48,22 @@ module.exports = {
       options: {
         gatsbyRemarkPlugins: [
           {
-            resolve: `gatsby-remark-prismjs`,
-            options: {},
-          },
-          {
             resolve: `gatsby-remark-images`,
             options: {
               maxWidth: 1200,
             },
           },
+          {
+            resolve: "gatsby-remark-embed-video",
+            options: {
+              width: 800,
+            },
+          },
+          {
+            resolve: `gatsby-remark-prismjs`,
+            options: {},
+          },
         ],
-
       },
     },
     {
