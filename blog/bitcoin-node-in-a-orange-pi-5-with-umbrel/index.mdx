@@ -67,6 +67,16 @@ sudo mount /dev/sda1 /mnt/disk1/
 
 The <code>/dev/</code> is standard, and you should add it in front of <code>sda1</code> or a similar name you have there.
 
+When you run the <code>mount</code> command, it only works for the current session. To make it mount when there is a boot, you need to change the <code>/etc/fstab</code> file and add this line at the end of it <code>/dev/sda1 mnt/disk1 ext4 default 0 0</code>. Mine looked like this:
+
+```bash
+> cat /etc/fstab
+UUID=bc3a0620-7f52-4f69-9d48-be19c533ab12 / ext4 defaults,noatime,commit=600,errors=remount-ro 0 1
+UUID=E429-E94B /boot vfat defaults 0 2
+tmpfs /tmp tmpfs defaults,nosuid 0 0
+/dev/sda1 /mnt/disk1 ext4 defaults 0 0
+```
+
 The following parameter is <code>/mnt/disk1/</code>, where it will mount. Once done, the next step is to install and configure docker. I didn't have any problems with the installation, so you shouldn't either. Just follow any of [these options](https://docs.docker.com/engine/install/ubuntu/).
 
 Once established, I wanted to change where docker will save the data. Docker keeps everything in a single directory. The default value is <code>/var/lib/docker</code>. In my case, I want it to save on my external hard drive. To do this, we will create a folder on it and configure docker:
