@@ -1,0 +1,365 @@
+---
+title: "Checking and fixing security issues on Orange Pi 5"
+date: "2022-12-21"
+modified_gmt: "2022-12-21"
+slug: "checking-and-fixing-security-issues-on-orange-pi-5"
+path: "/blog/checking-and-fixing-security-issues-on-orange-pi-5/"
+resume: "Almost nothing was done, but I learned a lot"
+subject: "Security"
+bg_image_class: "privacy-img"
+hero_image_credit_text: "Immo Wegmann"
+hero_image_credit_link: "https://unsplash.com/@macroman"
+---
+
+I use a traditional Ubuntu desktop operational system. I explain why in this other post, where I detail my first experience with this.
+
+After the first configuration and with an Umbrel running, I stop to see the Ubuntu to see what I have running.
+
+I am not a security professional, and my knowledge in the area is minimal, so take this text as an initial guide for personal projects. If you want professional security, seek a professional. I work in the Back End and am good at creating security vulnerabilities, not fixing them.
+
+In the end, I didn't do practically anything. I'm posting here to keep track of what I should have done. If you see anything wrong, please let me know.
+
+First, I got my public IP and tried connecting over the SSH port.
+
+```bash
+>curl ifconfig.me
+111.111.111.11
+```
+
+After that, try:
+
+```bash
+>ssh 111.111.111.11                                                                                                                                   ricardochaves@Ricardos-MacBook-Pro
+ssh: connect to host 111.111.111.11 port 22: Connection refused
+```
+
+Here I was calmer because I still needed to change the ssh password.
+
+Now I wanted tools to help me check for vulnerabilities in my Linux configuration. Searching on Google, I found some and started with [Lynis](https://cisofy.com/lynis/).
+
+To install and run, it's just this:
+
+```bash
+git clone https://github.com/CISOfy/lynis
+cd lynis
+./lynis audit system
+```
+
+At the end of the extensible report, they give me 47 suggestions:
+
+```bash
+* This release is more than 4 months old. Check the website or GitHub to see if there is an update available. [LYNIS]
+      https://cisofy.com/lynis/controls/LYNIS/
+```
+I can't do anything here. I have the newest version
+
+```bash
+* Consider hardening system services [BOOT-5264]
+    - Details  : Run '/usr/bin/systemd-analyze security SERVICE' for each service
+      https://cisofy.com/lynis/controls/BOOT-5264/
+```
+When I did it with Docker, it was all red... There are many services, and I will need time to check them one by one... If I'm going to do it.
+
+```bash
+* Determine why /vmlinuz or /boot/vmlinuz is missing on this Debian/Ubuntu system. [KRNL-5788]
+    - Details  : /vmlinuz or /boot/vmlinuz
+      https://cisofy.com/lynis/controls/KRNL-5788/
+```
+I need help understanding that vulnerability; I have the file /boot/vmlinuz-****. I am trying to understand why the test question this.
+
+```bash
+* If not required, consider explicit disabling of core dump in /etc/security/limits.conf file [KRNL-5820]
+      https://cisofy.com/lynis/controls/KRNL-5820/
+```
+Here I edited the <code>file/etc/sysctl.conf</code> and added <code>fs.suid_dumpable = 0</code> at the end of the file. After I did a reload of <code>sysctl</code> with the command sudo <code>sysctl -p</code>
+
+```bash
+* Check process listing for processes waiting for IO requests [PROC-3614]
+      https://cisofy.com/lynis/controls/PROC-3614/
+```
+I'm using a lot of disks, and I'll see it when I reduce the use.
+
+```bash
+* Install a PAM module for password strength testing like pam_cracklib or pam_passwdqc [AUTH-9262]
+      https://cisofy.com/lynis/controls/AUTH-9262/
+```
+Here we need to install the <code>cracklib</code> and edit the file <code>/etc/pam.d/common-password</code>:
+```bash
+sudo apt-get install -y libpam-cracklib
+sudo nano /etc/pam.d/common-password
+```
+Find the first line and replace it with the second:
+
+```text
+password        requisite                       pam_cracklib.so retry=3 minlen=8 difok=3
+password        requisite                       pam_cracklib.so retry=3 minlen=16 difok=3 ucredit=-1 lcredit=-2 dcredit=-2 ocredit=-2
+```
+Next:
+
+```bash
+* When possible set expire dates for all password protected accounts [AUTH-9282]
+      https://cisofy.com/lynis/controls/AUTH-9282/
+```
+At the moment, I'm not going to set anything to expire. If I start with that soon, I'll be doing key rotation and everything, which is too advanced for me.
+
+```bash
+* Configure minimum password age in /etc/login.defs [AUTH-9286]
+      https://cisofy.com/lynis/controls/AUTH-9286/
+```
+Again, it's about password times. I don't wanna change anything about this.
+
+```bash
+* Configure maximum password age in /etc/login.defs [AUTH-9286]
+      https://cisofy.com/lynis/controls/AUTH-9286/
+```
+The same as the previous.
+
+```bash
+* Default umask in /etc/login.defs could be more strict like 027 [AUTH-9328]
+      https://cisofy.com/lynis/controls/AUTH-9328/
+```
+This guy is more of a problem when you have multiple users. In my case, it's just me, and it's okay that the access permission I create stays at default.
+
+```bash
+* To decrease the impact of a full /home file system, place /home on a separate partition [FILE-6310]
+      https://cisofy.com/lynis/controls/FILE-6310/
+```
+From what I understand, this guy would also be a problem if more people were using my Linux. Which is not my case either.
+
+```bash
+* To decrease the impact of a full /var file system, place /var on a separate partition [FILE-6310]
+      https://cisofy.com/lynis/controls/FILE-6310/
+```
+Same case as above, only with another directory.
+
+```bash
+* Disable drivers like USB storage when not used, to prevent unauthorized storage or data theft [USB-1000]
+      https://cisofy.com/lynis/controls/USB-1000/
+```
+This is a false positive. I need the USB connected directly. I explained in the previous post linked at the beginning of the article.
+
+```bash
+* Check DNS configuration for the dns domain name [NAME-4028]
+      https://cisofy.com/lynis/controls/NAME-4028/
+```
+This one I didn't understand this… The Lynis documentation is terrible…
+
+```bash
+* Split resolving between localhost and the hostname of the system [NAME-4406]
+      https://cisofy.com/lynis/controls/NAME-4406/
+```
+I wanna this behave. I do not change it.
+
+```bash
+* Install debsums utility for the verification of packages with known good database. [PKGS-7370]
+      https://cisofy.com/lynis/controls/PKGS-7370/
+```
+I installed <code>debsums</code> and ran <code>debsums | grep FAILED</code>, and I had this result. Later I will analyze case by case. But that's for a future post.
+
+```bash
+/usr/bin/rkaiq_3A_server                                                  FAILED
+debsums: missing file /usr/lib/NetworkManager/conf.d/10-globally-managed-devices.conf (from network-manager package)
+debsums: missing file /etc/default/orangepi-motd.dpkg-dist (from orangepi-bsp-cli-orangepi5 package)
+debsums: missing file /etc/default/orangepi-ramlog.dpkg-dist (from orangepi-bsp-cli-orangepi5 package)
+debsums: missing file /etc/default/orangepi-zram-config.dpkg-dist (from orangepi-bsp-cli-orangepi5 package)
+debsums: missing file /etc/profile.d/orangepi-ssh-title.sh (from orangepi-bsp-cli-orangepi5 package)
+/etc/orangepi-release                                                     FAILED
+/etc/skel/.config/htop/htoprc                                             FAILED
+/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml              FAILED
+```
+
+```bash
+* Install package apt-show-versions for patch management purposes [PKGS-7394]
+      https://cisofy.com/lynis/controls/PKGS-7394/
+```
+I even installed the package to learn with this one, but I don't even know if I'll remember to use it constantly: sudo apt-get install apt-show-versions. Please look at their doc to understand what it does and uses there, which is fantastic.
+
+```bash
+* Determine if protocol 'dccp' is really needed on this system [NETW-3200]
+      https://cisofy.com/lynis/controls/NETW-3200/
+```
+Now it started to get really complicated… I started talking to ChatGPT to understand the protocol and how to check if it was being used. I came to the following conclusion, type the two commands below and check if it is in use:
+
+```bash
+netstat -an | grep dccp
+ss -p | grep dccp
+```
+As there was no response, I am assuming that it is not in use, and I will execute the command to add it to the blocklist and then restart the Orange Pi:
+
+```bash
+sudo echo "blacklist dccp" >> /etc/modprobe.d/blacklist.conf
+```
+
+```bash
+* Determine if protocol 'sctp' is really needed on this system [NETW-3200]
+      https://cisofy.com/lynis/controls/NETW-3200/
+```
+The same as the before
+
+```bash
+* Determine if protocol 'rds' is really needed on this system [NETW-3200]
+      https://cisofy.com/lynis/controls/NETW-3200/
+```
+The same as the before
+
+```bash
+* Determine if protocol 'tipc' is really needed on this system [NETW-3200]
+      https://cisofy.com/lynis/controls/NETW-3200/
+```
+The same as the before
+
+```bash
+* Access to CUPS configuration could be more strict. [PRNT-2307]
+      https://cisofy.com/lynis/controls/PRNT-2307/
+```
+I don't have a printer, so I didn't even think about it and already restricted access:
+```bash
+sudo chown root:lpadmin /etc/cups/cupsd.conf
+sudo chmod 640 /etc/cups/cupsd.conf
+```
+
+```bash
+* Check iptables rules to see which rules are currently not used [FIRE-4513]
+      https://cisofy.com/lynis/controls/FIRE-4513/
+```
+I don't have the ability to see... I'll need to study more to verify what's actually in use.
+
+```bash
+* Consider hardening SSH configuration [SSH-7408]
+    - Details  : AllowTcpForwarding (set YES to NO)
+      https://cisofy.com/lynis/controls/SSH-7408/
+
+  * Consider hardening SSH configuration [SSH-7408]
+    - Details  : ClientAliveCountMax (set 3 to 2)
+      https://cisofy.com/lynis/controls/SSH-7408/
+
+  * Consider hardening SSH configuration [SSH-7408]
+    - Details  : LogLevel (set INFO to VERBOSE)
+      https://cisofy.com/lynis/controls/SSH-7408/
+
+  * Consider hardening SSH configuration [SSH-7408]
+    - Details  : MaxAuthTries (set 6 to 3)
+      https://cisofy.com/lynis/controls/SSH-7408/
+
+  * Consider hardening SSH configuration [SSH-7408]
+    - Details  : MaxSessions (set 10 to 2)
+      https://cisofy.com/lynis/controls/SSH-7408/
+
+  * Consider hardening SSH configuration [SSH-7408]
+    - Details  : PermitRootLogin (set YES to (FORCED-COMMANDS-ONLY|NO|PROHIBIT-PASSWORD|WITHOUT-PASSWORD))
+      https://cisofy.com/lynis/controls/SSH-7408/
+
+  * Consider hardening SSH configuration [SSH-7408]
+    - Details  : Port (set 22 to )
+      https://cisofy.com/lynis/controls/SSH-7408/
+
+  * Consider hardening SSH configuration [SSH-7408]
+    - Details  : TCPKeepAlive (set YES to NO)
+      https://cisofy.com/lynis/controls/SSH-7408/
+
+  * Consider hardening SSH configuration [SSH-7408]
+    - Details  : X11Forwarding (set YES to NO)
+      https://cisofy.com/lynis/controls/SSH-7408/
+
+  * Consider hardening SSH configuration [SSH-7408]
+    - Details  : AllowAgentForwarding (set YES to NO)
+      https://cisofy.com/lynis/controls/SSH-7408/
+```
+Here it says to be more strict on the SSH configuration. I'm not going to do that now, I use it a lot, and things like keeping the connection open are helpful.
+
+```bash
+* Enable logging to an external logging host for archiving purposes and additional protection [LOGG-2154]
+      https://cisofy.com/lynis/controls/LOGG-2154/
+```
+I will not send my logs elsewhere. In my scenario, it is overkill.
+
+```bash
+* Check what deleted files are still in use and why. [LOGG-2190]
+      https://cisofy.com/lynis/controls/LOGG-2190/
+```
+The oldest file in my <code>/tmp</code> folder was 3 days old, I don't know if I did something wrong, but I'm okay at this point.
+
+```bash
+* Add legal banner to /etc/issue.net, to warn unauthorized users [BANN-7130]
+      https://cisofy.com/lynis/controls/BANN-7130/
+```
+This one was pretty cool. I edited the <code>/etc/issue.net</code> file and put this text:
+
+```bash
+Go away
+This is your last warning
+If you try again you will get cancer.
+```
+
+```bash
+* Enable process accounting [ACCT-9622]
+      https://cisofy.com/lynis/controls/ACCT-9622/
+```
+I don't understand what to do with this...
+
+```bash
+* Enable sysstat to collect accounting (disabled) [ACCT-9626]
+      https://cisofy.com/lynis/controls/ACCT-9626/
+```
+I'll leave it to install the suggested tools and study them one by one in the future.
+
+```bash
+* Enable auditd to collect audit information [ACCT-9628]
+      https://cisofy.com/lynis/controls/ACCT-9628/
+```
+I installed oauditd and used the aureport command, and an excellent report appeared. Keep the note to study this better
+
+```bash
+* Check output of aa-status [MACF-6208]
+    - Details  : /sys/kernel/security/apparmor/profiles
+    - Solution : Run aa-status
+      https://cisofy.com/lynis/controls/MACF-6208/
+```
+I tried everything that I could, but I couldn't solve this. I'll try later
+
+```bash
+* Install a file integrity tool to monitor changes to critical and sensitive files [FINT-4350]
+      https://cisofy.com/lynis/controls/FINT-4350/
+```
+This one asks to install another security system. I'll see that later too.
+
+```bash
+* Determine if automation tools are present for system management [TOOL-5002]
+      https://cisofy.com/lynis/controls/TOOL-5002/
+```
+It's asking to install automation tools. I'm not interested in that.
+
+```bash
+* Consider restricting file permissions [FILE-7524]
+    - Details  : See screen output or log file
+    - Solution : Use chmod to change file permissions
+      https://cisofy.com/lynis/controls/FILE-7524/
+```
+Totally unclear here… I don't understand what I need to do precisely.
+
+```bash
+* One or more sysctl values differ from the scan profile and could be tweaked [KRNL-6000]
+    - Solution : Change sysctl value or disable test (skip-test=KRNL-6000:<sysctl-key>)
+      https://cisofy.com/lynis/controls/KRNL-6000/
+```
+I didn't understand this one, either. In my case, I'll leave everything as it is.
+
+```bash
+* Harden compilers like restricting access to root user only [HRDN-7222]
+      https://cisofy.com/lynis/controls/HRDN-7222/
+```
+This one is cool. It tells you to remove compilers or register access. I will not remove it, but I will look into restricting access. I will not do it on my Orange Pi right now to avoid messing something up. This is new to me.
+
+```bash
+* Harden the system by installing at least one malware scanner, to perform periodic file system scans [HRDN-7230]
+    - Solution : Install a tool like rkhunter, chkrootkit, OSSEC
+      https://cisofy.com/lynis/controls/HRDN-7230/
+```
+Lastly, it asks to install a malware scanner tool, which makes sense to me. I am going to do it.
+
+
+I learned a lot reading about each item, and I'll leave this post as a note to execute what was missing.
+
+Do the same to better understand how the system works.
+
+I will run this constantly.
