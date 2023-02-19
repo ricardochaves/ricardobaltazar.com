@@ -1,0 +1,169 @@
+---
+title: "Creating a service in Ubuntu to run a Docker image"
+date: "2023-02-19"
+modified_gmt: "2023-02-19"
+slug: "creating-a-service-in-ubuntu-to-run-a-docker-image"
+path: "/blog/creating-a-service-in-ubuntu-to-run-a-docker-image/"
+resume: "A exercise to learn more about a Linux System."
+subject: "Linux"
+bg_image_class: "cloud-bg-img"
+hero_image_credit_text: "Sigmund"
+hero_image_credit_link: "https://unsplash.com/es/@sigmund"
+---
+
+
+Systemd is a system and service manager for Linux operating systems. It is responsible for managing the services and daemons running on the system. Systemd uses unit files to define and manage services in the directory `/etc/systemd/system/`. This article will discuss the different parameters in a systemd unit file and what they mean.
+
+Create a file in `/etc/systemd/system`
+
+```bash
+[Unit]
+Description=Onion Share
+Wants=network-online.target
+After=network-online.target
+Wants=docker.service
+After=docker.service
+
+StartLimitInterval=0
+
+[Service]
+Type=forking
+TimeoutStartSec=infinity
+TimeoutStopSec=16min
+ExecStart=/mnt/disk1/onion-farm/scripts/start
+ExecStop=/mnt/disk1/umbrel/scripts/stop
+User=root
+Group=root
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=onion-service-startup
+RemainAfterExit=yes
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+A summary of the fields that can be used in this file follows.
+
+\[Unit]
+
+The \[Unit] section is used to define metadata about the unit. It contains options such as Description, After, Before, Requires, Wants, and Conflicts.
+
+\[Service]
+
+The \[Service] section is used to configure the service that the unit file describes. It contains options such as Type, ExecStart, User, Group, WorkingDirectory, Restart, TimeoutSec, and RestartSec.
+
+\[Install]
+
+The \[Install] section is used to specify installation-related options for the unit file. It contains options such as WantedBy and RequiredBy.
+
+**Description**
+
+The Description option is used to provide a human-readable description of the unit. It should briefly describe what the unit does.
+
+**After**
+
+The After option specifies the units that must be started before this unit. This is useful when the current unit depends on other units being already started.
+
+**Before**
+
+The Before option specifies the units that must be started after this unit. This is useful when other units depend on the current unit being already started.
+
+**Requires**
+
+The Requires option specifies that the specified unit must be started before this unit. If the specified unit fails to start, this unit will also fail.
+
+**Wants**
+
+The Wants option is similar to the Requires option, but the specified unit is not necessary for the current unit to function.
+
+**Conflicts**
+
+The Conflicts option specifies units that are not allowed to be run at the same time as the current unit. If a conflicting unit is already running, the current unit will not be started.
+
+**Type**
+
+The Type option specifies how the service should be started. The possible values are simple, forking, oneshot, dbus, notify, idle, and watchdog.
+
+**ExecStart**
+
+The ExecStart option specifies the command that should be executed to start the service. This option can include arguments, and multiple commands can be specified.
+
+**User**
+
+The User option specifies the user account under which the service should be run.
+
+**Group**
+
+The Group option specifies the group under which the service should be run.
+
+**WorkingDirectory**
+
+The WorkingDirectory option specifies the working directory for the service.
+
+**Restart**
+
+The Restart option specifies when the service should be restarted. The possible values are no, always, on-success, on-failure, on-abnormal, on-watchdog, on-abort, and on-disconnect.
+
+**TimeoutSec**
+
+The TimeoutSec option specifies the time in seconds that systemd will wait for the service to start. If the service does not start in the specified time, systemd will consider it to have failed.
+
+**RestartSec**
+
+The RestartSec option specifies the time in seconds that systemd should wait before restarting the service after it has stopped.
+
+**WantedBy**
+
+The WantedBy option specifies the target that should be enabled when the unit is installed.
+
+**RequiredBy**
+
+The RequiredBy option specifies the target that should be enabled when the unit is installed. This is similar to WantedBy, but the target is required rather than just being wanted.
+
+In conclusion, understanding the parameters in a systemd unit file is essential to manage services and daemons effectively on Linux operating systems. Knowing how to use these parameters can help you configure services to start at boot time, restart automatically, and recover from errors.
+
+
+Create a directory where the files will be created. In my case will be `mnt/disk1/onion-farm/scripts/start`
+
+**start** file
+
+```bash
+#!/bin/bash
+
+docker run \
+    -p 3000:5000 \
+    -v $(pwd)/html/:/var/www/html/ \
+    -v $(pwd)/http.d/:/etc/nginx/http.d/ \
+    -v $(pwd)/torrc.d/:/etc/torrc.d/ \
+    -v $(pwd)/tor/:/var/lib/tor/ \
+    -d \
+    --name onion-farm \
+    ricardobchaves6/onion-farm:v1.0.0
+```
+
+**stop** file
+
+```bash
+#!/bin/bash
+
+docker stop -t 30 onion-farm
+docker rm onion-farm
+```
+
+Add the correct permission to files. `sudo chmod 775 start stop`
+
+Execute the above command to initiate the service in a startup Ubuntu.
+
+```bash
+sudo systemctl enable onion-farm-startup.service
+```
+
+And now, test your service:
+
+```bash
+systemctl start onion-farm-startup.service
+systemctl stop onion-farm-startup.service
+```
