@@ -1,0 +1,39 @@
+---
+title: "How to modify the Docker service initialization on Ubuntu"
+date: "2023-03-08"
+modified_gmt: "2023-03-08"
+slug: "how-to-modify-the-docker-service-initialization-on-ubuntu"
+path: "/blog/how-to-modify-the-docker-service-initialization-on-ubuntu/"
+resume: "Learn a lit more about Linux services."
+subject: "Linux"
+bg_image_class: "linux-img"
+hero_image_credit_text: "Gabriel Heinzer"
+hero_image_credit_link: "https://unsplash.com/photos/4Mw7nkQDByk?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText"
+---
+I had a problem with a disk mount in my Ubuntu. When it happens, my docker service starts with an error. The error is why my docker data is on this disk.
+
+To fix this, I changed the docker service configuration to wait for a disk mount before starting. I learned the correct way to do this correctly.
+
+First, you must understand that the fire responsible for initializing the docker service in Ubuntu is <code>/lib/systemd/system/docker.service</code>, and it's managed by Docker, so we must not change this.
+
+To change the behavior of the service, we need to create a directory  <code>/etc/systemd/system/docker.service.d/</code> and inside, then create a file <code>mount.conf</code>:
+
+```text
+[Unit]
+RequiresMountsFor=/mnt/disk1
+```
+
+This configuration will add or change the RequiresMountsFor configuration of the file <code>/lib/systemd/system/docker.service</code> using the value <code>/mnt/disk1</code>, which is the disk name I need to wait to be mounted before docker start.
+
+After creating the file in <code>/etc/systemd/system/docker.service.d/</code>, you must reload the systemd daemon for the changes to take effect using the command:
+```bash
+sudo systemctl daemon-reload
+```
+
+After that, you can restart the docker service to apply the changes with the command:
+
+```bash
+sudo systemctl restart docker
+```
+
+Every time the docker service is initialized, it will verify if a disk has been mounted before.
