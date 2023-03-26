@@ -1,0 +1,148 @@
+---
+title: "Configuring KEDA for Autoscaling Based on RabbitMQ Queue Messages"
+date: "2023-03-26"
+modified_gmt: "2022-03-26"
+slug: "configuring-keda-for-autoscaling-based-on-rabbitmq-queue-messages"
+path: "/blog/configuring-keda-for-autoscaling-based-on-rabbitmq-queue-messages/"
+resume: "Configure KEDA for autoscaling Kubernetes consumers based on RabbitMQ queue messages, and monitor logs to ensure seamless event-driven scalability."
+subject: "Kubernetes"
+bg_image_class: "cloud-bg-img"
+hero_image_credit_text: "Sigmund"
+hero_image_credit_link: "https://unsplash.com/es/@sigmund"
+---
+
+[KEDA (Kubernetes Event-driven Autoscaling)](https://keda.sh/) is an open-source project that provides event-driven scalability for Kubernetes applications. In this post, we'll show you how to configure KEDA to autoscale a consumer based on the number of messages in a RabbitMQ queue. The goal is to have a consumer on standby (with no instances running) until a message is queued.
+
+Additionally, we'll cover how to monitor KEDA logs to ensure the autoscaling is working as expected.
+
+Prerequisites:
+
+- A configured Kubernetes cluster.
+- kubectl installed and set up.
+- Helm installed and set up.
+- Access to RabbitMQ (local or remote).
+
+**Install KEDA using Helm**
+
+To install KEDA using Helm, run the following command:
+
+```bash
+helm repo add kedacore https://kedacore.github.io/charts
+helm repo update
+helm install keda kedacore/keda --namespace keda --create-namespace
+```
+
+**Create a consumer**
+
+Create a file called consumer.yaml with the following content:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-consumer
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: rabbitmq-consumer
+  template:
+    metadata:
+      labels:
+        app: rabbitmq-consumer
+    spec:
+      containers:
+      - name: consumer
+        image: <YOUR_CONSUMER_IMAGE>
+        env:
+        - name: RABBITMQ_CONNECTIONSTRING
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: connectionString
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rabbitmq-secret
+type: Opaque
+stringData:
+  connectionString: <YOUR_RABBITMQ_CONNECTION_STRING>
+
+```
+
+**Configure the ScaledObject**
+
+Create a file called scaledobject.yaml with the following content:
+
+```yaml
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: rabbitmq-scaledobject
+spec:
+  scaleTargetRef:
+    name: rabbitmq-consumer
+  minReplicaCount: 0
+  maxReplicaCount: 10
+  triggers:
+  - type: rabbitmq
+    metadata:
+      queueName: <QUEUE_NAME>
+      queueLength: '1'
+      hostFromEnv: RABBITMQ_CONNECTIONSTRING
+```
+
+**Apply the configurations**
+
+Run the following commands to apply the configurations:
+
+```bash
+kubectl apply -f consumer.yaml
+kubectl apply -f scaledobject.yaml
+```
+
+Now, KEDA will monitor the RabbitMQ queue and adjust the number of consumer replicas based on the number of messages in the queue. When the queue is empty, there will be no instances of the consumer running. When a message arrives in the queue, KEDA will scale the consumer accordingly.
+
+**Monitoring KEDA logs**
+
+To monitor the KEDA logs and verify that autoscaling is working correctly, you can check the logs of the KEDA operator pod. Follow the steps below:
+
+**List the pods in the KEDA namespace**
+
+Run the following command to list all the pods in the KEDA namespace:
+
+```bash
+kubectl get pods -n keda
+```
+
+You will see output similar to this:
+
+```bash
+    RESTARTS   AGE
+keda-6d869d66bd-5ht5j                      1/1     Running   0          1d
+keda-operator-7c87884b75-4vwmn             1/1     Running   0          1d
+```
+
+**Check the KEDA operator logs**
+
+To check the KEDA operator logs, run the following command, replacing <code>`<KEDA_OPERATOR_POD>`</code> with the name of the KEDA operator pod obtained in the previous step:
+
+```bash
+kubectl logs -f <KEDA_OPERATOR_POD> -n keda
+```
+
+For example:
+
+
+```bash
+kubectl logs -f keda-operator-7c87884b75-4vwmn -n keda
+```
+
+You will see logs similar to these when monitoring autoscaling:
+
+```bash
+{"level":"info","ts":...,"logger":"scalehandler","msg":"Scaling","ScaledObject.Namespace":"default","ScaledObject.Name":"rabbitmq-scaledobject","ScaledObject.ScaleType":"deployment","ScaledObject.Scaler":{},"ScaledObject.MinReplicas":0,"ScaledObject.MaxReplicas":10,"ScaledObject.Replicas":0}
+{"level":"info","ts":...,"logger":"controllers.ScaledObject","msg":"Successfully updated status","ScaledObject.Namespace":"default","ScaledObject.Name":"rabbitmq-scaledobject"}
+{"level":"info","ts":...,"logger":"scalehandler","msg":"Scaling","ScaledObject.Namespace":"default","ScaledObject.Name":"rabbitmq-scaledobject","ScaledObject.ScaleType":"deployment","ScaledObject.Scaler":{},"ScaledObject.MinReplicas":0,"ScaledObject.MaxReplicas":10,"ScaledObject.Replicas":1}
+```
