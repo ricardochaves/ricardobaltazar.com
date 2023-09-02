@@ -1,0 +1,61 @@
+---
+title: "How to solo mine Bitcoin with a regular PC."
+date: "2023-09-02"
+modified_gmt: "2023-09-02"
+slug: "how-to-solo-mine-bitcoin-with-a-regular-pc"
+path: "/blog/how-to-solo-mine-bitcoin-with-a-regular-pc/"
+resume: "My lottery with BTC in a regular PC using docker."
+subject: "Privacy"
+bg_image_class: "privacy-img"
+hero_image_credit_text: "Immo Wegmann"
+hero_image_credit_link: "https://unsplash.com/@macroman"
+---
+
+Bitcoin solo mining is a funny hobby where you can learn much about Bitcoin and have a SMALL chance of earning good money. Imagine that you have a lottery where your chance to win is a thousand times less than a regular one, but you can play a thousand times every second when, in a regular one, you have one or two chances to play by week.
+
+I configured the Bitcoin Core to run behind a Tor network. Consider always doing it when you are using Bitcoin Core.
+
+I prepared a docker setup to facilitate you to have your owner lottery.
+
+Clone the GitHub repository:
+
+```bash
+git clone https://github.com/ricardochaves/bitcoin-solo-mining
+```
+
+The first thing that you need to do is synchronize your blockchain. Let's use a prune Node and not a full node.
+
+Execute <code>docker-compose up bitcoin-core</code>; when the compose creates a btc directory in your server root directory, you must stop the container now.
+
+Copy the <code>bitcoin.conf</code> file to btc directory.12
+
+You can start the container again and wait many days to sync all the blockchain, or you can download the last snapshot of the blockchain at [https://bitcoin-snapshots.jaonoct.us/](https://bitcoin-snapshots.jaonoct.us/).
+
+The download will give you two directories and a bitcoin.conf file. You must replace the blocks and the chainstate directories inside the btc directory. Don't replace the bitcoin.conf file.
+
+When you start, you can see the logs showing you bitcoin.conf is working:
+
+```bash
+2023-09-02T10:42:48Z Config file: /home/bitcoin/.bitcoin/bitcoin.conf
+2023-09-02T10:42:48Z Config file arg: maxmempool="1000"
+2023-09-02T10:42:48Z Config file arg: proxy="127.0.0.1:9050"
+2023-09-02T10:42:48Z Config file arg: prune="550"
+2023-09-02T10:42:48Z Config file arg: rpcallowip="0.0.0.0/0"
+2023-09-02T10:42:48Z Config file arg: rpcbind=****
+2023-09-02T10:42:48Z Config file arg: rpcbind=****
+2023-09-02T10:42:48Z Config file arg: rpcpassword=****
+2023-09-02T10:42:48Z Config file arg: rpcuser=****
+```
+
+While Bitcoin core is syncing, we will set up our miner.
+
+You need a BTC wallet to add in <code>start.sh</code> file. Replace the <code>YOUR_WALLET</code> value. Please don't use an exchange address. If you have luck and find a block, you will have problems getting your bitcoins from an exchange.
+
+Stop your bitcoin-core container, and from now you will use <code>docker compose up</code>.
+You will see some errors in a miner container; it's normal because the bitcoin-core container needs some time to receive connections. Just wait some minutes, and you will see the logs of your mining working.
+
+```bash
+[2023-09-02 11:33:01] thread 0: 336634816 hashes, 9140 khash/s
+```
+
+If you want to run the miner of side a container, expose the 8332 port in your bitcoin-core container and configure your miner in your operational system.
